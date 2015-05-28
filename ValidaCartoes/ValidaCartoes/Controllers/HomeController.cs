@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ValidaCartoes.Models;
 
 namespace ValidaCartoes.Controllers
 {
@@ -13,18 +14,13 @@ namespace ValidaCartoes.Controllers
             return View();
         }
 
-        public ActionResult About()
+        [HttpPost]
+        public ActionResult Index(CartaoCredito model)
         {
-            ViewBag.Message = "Your application description page.";
+            model.bandeiraCartao = bandeira.VISA;
+            model.valido = true;
 
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return View(model);
         }
     }
 }
