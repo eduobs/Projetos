@@ -13,6 +13,8 @@ namespace ValidaCartoes.Tests.Controllers
     [TestClass]
     public class HomeControllerTest
     {
+        #region -- Teste da Action Index --
+
         [TestMethod]
         public void Index()
         {
@@ -36,6 +38,84 @@ namespace ValidaCartoes.Tests.Controllers
             Assert.AreEqual(false, model.valido);
             Assert.AreEqual(bandeira.DESCONHECIDO, model.bandeiraCartao);
         }
+
+        [TestMethod]
+        public void Teste_valor_com_espacos_valido()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = " 4111111111111111 " });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(true, model.valido);
+        }
+
+        [TestMethod]
+        public void Teste_valor_com_espacos_invalido()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = " 411111111111111 " });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreNotEqual(true, model.valido);
+        }
+
+        [TestMethod]
+        public void Teste_cartao_valido_visa()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = "4111111111111111" });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(true, model.valido);
+            Assert.AreEqual(bandeira.VISA, model.bandeiraCartao);
+        }
+
+        [TestMethod]
+        public void Teste_cartao_invalido_visa()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = "411111111111111" });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(false, model.valido);
+            Assert.AreEqual(bandeira.VISA, model.bandeiraCartao);
+        }
+
+        [TestMethod]
+        public void Teste_cartao_valido_master()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = "5105105105105100" });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(true, model.valido);
+            Assert.AreEqual(bandeira.MASTERCARD, model.bandeiraCartao);
+        }
+
+        [TestMethod]
+        public void Teste_cartao_invalido_master()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = "5105105105105106 " });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(false, model.valido);
+            Assert.AreEqual(bandeira.MASTERCARD, model.bandeiraCartao);
+        }
+
+        [TestMethod]
+        public void Teste_cartao_desconhecido()
+        {
+            HomeController controller = new HomeController();
+            ViewResult result = (ViewResult)controller.Index(new CartaoCredito() { numeroCartao = "9111111111111111" });
+            var model = (CartaoCredito)result.Model;
+
+            Assert.AreEqual(bandeira.DESCONHECIDO, model.bandeiraCartao);
+        }
+
+        #endregion -- Teste da Action Index --
+
+        #region -- Teste do método validarNumero --
 
         [TestMethod]
         public void Teste_Sequencia_de_numeros_zero()
@@ -119,6 +199,37 @@ namespace ValidaCartoes.Tests.Controllers
         }
 
         [TestMethod]
+        public void Teste_Validar_positivo_com_13_caracteres()
+        {
+            HomeController controller = new HomeController();
+            bool result = controller.validarNumero("1234567891234");
+
+            Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public void Teste_Validar_positivo_com_15_caracteres()
+        {
+            HomeController controller = new HomeController();
+            bool result = controller.validarNumero("123456789123456");
+
+            Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public void Teste_Validar_positivo_com_16_caracteres()
+        {
+            HomeController controller = new HomeController();
+            bool result = controller.validarNumero("1234567891234567");
+
+            Assert.AreEqual(true, result);
+        }
+
+        #endregion -- Teste do método validarNumero --
+
+        #region -- Teste do método inverteSequenciaNumeros --
+
+        [TestMethod]
         public void Teste_Inverter_sequencia_simples()
         {
             HomeController controller = new HomeController();
@@ -144,6 +255,10 @@ namespace ValidaCartoes.Tests.Controllers
 
             Assert.AreEqual("1100", result);
         }
+
+        #endregion -- Teste do método inverteSequenciaNumeros --
+
+        #region -- Teste do método verificaBandeiraCartao --
 
         [TestMethod]
         public void Teste_verifica_bandeira_cartao_AMEX_iniciada_com_34()
@@ -273,5 +388,38 @@ namespace ValidaCartoes.Tests.Controllers
 
             Assert.AreEqual(bandeira.DESCONHECIDO, result);
         }
+
+        #endregion -- Teste do método verificaBandeiraCartao --
+
+        #region-- Teste do método validarNumeroCartao --
+
+        [TestMethod]
+        public void Teste_Validar_numero_cartao_valido()
+        {
+            HomeController controller = new HomeController();
+
+            bool result = controller.validarNumeroMultiploDe10("4111111111111111");
+            Assert.AreEqual(true, result);
+
+            result = controller.validarNumeroMultiploDe10("4012888888881881");
+            Assert.AreEqual(true, result);
+
+            result = controller.validarNumeroMultiploDe10("378282246310005");
+            Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public void Teste_Validar_numero_cartao_invalido()
+        {
+            HomeController controller = new HomeController();
+
+            bool result = controller.validarNumeroMultiploDe10("4111111111111");
+            Assert.AreNotEqual(true, result);
+
+            result = controller.validarNumeroMultiploDe10("5105105105105106");
+            Assert.AreNotEqual(true, result);
+        }
+
+        #endregion-- Teste do método validarNumeroCartao --
     }
 }
